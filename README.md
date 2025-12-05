@@ -40,7 +40,7 @@ This workflow runs automatically every **15 minutes**, ensuring teams never miss
 
 You can watch my DEMO video [HERE](https://drive.google.com/file/d/1U5OVnqKIw6XjgL2qGJPyc7YwPui-1PrV/view?usp=sharing)
 
-You can download the JSON file [HERE](https://github.com/paschaldubem/SOCIAL-MEDIA-MONITORING-AND-ALERTS-WORKFLOW/blob/main/Social%20Media%20Monitoring%20%26%20Alerts%20%20Workflow.json)
+You can download the  n8n JSON file [HERE](https://github.com/paschaldubem/SOCIAL-MEDIA-MONITORING-AND-ALERTS-WORKFLOW/blob/main/Social%20Media%20Monitoring%20%26%20Alerts%20%20Workflow.json)
 
 
 # **How It Works (Functionality)**

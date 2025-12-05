@@ -18,7 +18,8 @@ Instead of manually searching platforms, this system uses **n8n** to fetch menti
 -  **Neutral coverage** → Logged into Google Sheets only, providing a complete record for future analysis.
 
 This workflow runs automatically every **15 minutes**, ensuring teams never miss key online discussions.
-You can download the JSON file [HERE]()
+
+You can download the JSON file [HERE](https://github.com/paschaldubem/SOCIAL-MEDIA-MONITORING-AND-ALERTS-WORKFLOW/blob/main/Social%20Media%20Monitoring%20%26%20Alerts%20%20Workflow.json)
 
 # **How It Works (Functionality)**
 ## **Trigger**

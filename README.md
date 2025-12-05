@@ -131,7 +131,7 @@ For marketing, PR, and brand image monitoring teams:
 -  The marketing team leveraged positive mentions from Airtable for testimonial campaigns.
 -  The PR team reduced average response time to negative press mentions by **~60%**.
 
-# **Version Updates*
+# **Version Updates**
 -  **v1.0** – Initial release: Google News + sentiment branching.
 -  **v1.1** – Added Slack and Telegram team alerts.
 -  **v1.2** – Airtable integration for positive testimonials.

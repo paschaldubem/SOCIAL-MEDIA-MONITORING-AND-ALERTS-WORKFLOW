@@ -1,5 +1,24 @@
 # SOCIAL MEDIA MONITORING AND ALERTS WORKFLOW
 
+# TABLE OF CONTENTS
+- [CATEGORY](#category)
+- [DETAILED DESCRIPTION](#detailed-description)
+- [HOW IT WORKS (FUNCTIONALITY)](#how-it-works-functionality)
+  -    [TRIGGER](#trigger)
+  -    [DATA RETRIEVAL](#data-retrieval)
+  -    [SENTIMENT ANALYSIS (RULE-BASED)](#sentiment-analysis-rule-based)
+  -    [BRANCHING](#branching)
+  -    [ACTION PER BRANCH](#actions-per-branch)
+- [TOOLS REQUIRED](#tools-required)
+- [SIZE OF PROJECT](#size-of-project)
+- [SETUP REQUIREMENTS](#setup-requirements)
+- [DEPLOYMENT TIME ESTIMATE](#deployment-time-estimate)
+- [VALUE PROPOSITION (ROI)](#value-proposition-roi)
+- [KNOWN LIMITATIONS](#known-limitations)
+- [USE CASES](#use-cases)
+- [VERSION UPDATES](#version-updates)
+
+
 # Category
 Marketing / Brand Monitoring / Public relations
 
@@ -107,12 +126,12 @@ For marketing, PR, and brand image monitoring teams:
 -  The Airtable free plan is limited to **1,000 records** per base.
 -  Telegram & Slack require a stable internet connection.
 
-# **Testimonials / Use Cases**
+# **Use Cases**
 -  Tested internally: the workflow flagged negative posts (with the *“backlash”* keyword) for ESCP business school-related posts within 15 minutes.
 -  The marketing team leveraged positive mentions from Airtable for testimonial campaigns.
 -  The PR team reduced average response time to negative press mentions by **~60%**.
 
-# **Version & Updates**
+# **Version Updates*
 -  **v1.0** – Initial release: Google News + sentiment branching.
 -  **v1.1** – Added Slack and Telegram team alerts.
 -  **v1.2** – Airtable integration for positive testimonials.

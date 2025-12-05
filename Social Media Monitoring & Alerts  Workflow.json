@@ -1,0 +1,1139 @@
+{
+  "name": "Social Media Monitoring & Alerts  Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        336,
+        720
+      ],
+      "id": "7474ea7c-f16f-40e5-99ea-be3183f9333a",
+      "name": "Trigger every 15 mins"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Define keyword lists\nnegatives = [\n    # Customer service complaints\n    \"complaint\",\"complaints\",\"poor service\",\"bad service\",\"customer service\",\"support issue\",\"unhelpful\",\"rude\",\"ignored\",\n    \"waited\",\"delay\",\"delayed\",\"long wait\",\"hold\",\"no response\",\"no reply\",\"unanswered\",\n    \n    # Product / quality issues\n    \"broken\",\"not working\",\"doesn't work\",\"stopped working\",\"faulty\",\"defective\",\"damaged\",\n    \"low quality\",\"cheap\",\"poor quality\",\"bad quality\",\"useless\",\"worthless\",\"trash\",\"garbage\",\n    \"fake\",\"counterfeit\",\"knockoff\",\"shady\",\"scam\",\"fraud\",\"rip-off\",\"overpriced\",\"overcharged\",\n\n    # Technical issues / reliability\n    \"bug\",\"glitch\",\"error\",\"crash\",\"failed\",\"failure\",\"downtime\",\"outage\",\"offline\",\"lag\",\"slow\",\n    \"server down\",\"service down\",\"cannot connect\",\"connection lost\",\"timeout\",\"unstable\",\n    \n    # Financial issues\n    \"refund\",\"no refund\",\"stolen\",\"charged twice\",\"hidden fee\",\"billing error\",\"unauthorized charge\",\n    \"scammed\",\"cheated\",\"money lost\",\"ripoff\",\"penalty\",\"fine\",\n    \n    # Security / legal\n    \"hack\",\"hacked\",\"hacking\",\"phishing\",\"data breach\",\"leak\",\"exploit\",\"malware\",\"virus\",\"spyware\",\"ransomware\",\n    \"lawsuit\",\"illegal\",\"criminal\",\"guilty\",\"corruption\",\"bribery\",\"fraudulent\",\n    \n    # Emotional / strong negatives\n    \"hate\",\"angry\",\"frustrated\",\"annoyed\",\"irritated\",\"disappointed\",\"disappointing\",\"unsatisfied\",\"unhappy\",\n    \"worst\",\"awful\",\"horrible\",\"terrible\",\"disaster\",\"disgusting\",\"pathetic\",\"shame\",\"embarrassing\",\"toxic\",\n    \n    # Reputation / trust\n    \"boycott\",\"negative review\",\"bad review\",\"one star\",\"0 stars\",\"scandal\",\"controversy\",\"backlash\",\"protest\",\n\n    # Education quality (negative)\n    \"poor teaching\",\"bad teaching\",\"uninspiring lectures\",\"boring classes\",\"low academic standard\",\n    \"outdated curriculum\",\"lack of research\",\"poor facilities\",\"bad professors\",\"incompetent lecturers\",\n    \n    # Job prospects (negative)\n    \"unemployed graduates\",\"no jobs\",\"poor career prospects\",\"low employment rate\",\"difficult to find work\",\n    \"graduates struggle\",\"useless degree\",\"unmarketable skills\",\"not employable\"\n]\n\n\npositives = [\n    # Customer service praise\n    \"helpful\",\"kind\",\"friendly\",\"supportive\",\"responsive\",\"fast service\",\"quick reply\",\"attentive\",\"professional\",\"excellent service\",\n    \n    # Product / quality praise\n    \"amazing\",\"great\",\"fantastic\",\"excellent\",\"outstanding\",\"superb\",\"wonderful\",\"brilliant\",\"love\",\"best\",\"perfect\",\n    \"impressive\",\"awesome\",\"beautiful\",\"high quality\",\"premium\",\"durable\",\"reliable\",\"top-notch\",\"world-class\",\n    \n    # Experience / emotions\n    \"happy\",\"satisfied\",\"pleased\",\"delighted\",\"excited\",\"thrilled\",\"grateful\",\"thank you\",\"thanks\",\"appreciate\",\n    \"recommend\",\"recommended\",\"five stars\",\"5 stars\",\"positive review\",\"good review\",\"loyal customer\",\n    \n    # Performance / reliability\n    \"fast\",\"speedy\",\"smooth\",\"easy\",\"works perfectly\",\"flawless\",\"seamless\",\"efficient\",\"powerful\",\n    \n    # Value / trust\n    \"worth it\",\"valuable\",\"affordable\",\"fair price\",\"reasonable\",\"trusted\",\"reliable\",\"dependable\",\"secure\",\"safe\",\n    \n    # Strong emotional positives\n    \"love it\",\"love this\",\"game changer\",\"next level\",\"lifesaver\",\"best ever\",\"excellent job\",\"amazing work\",\n\n    # Education quality (positive)\n    \"world-class education\",\"excellent teaching\",\"inspiring professors\",\"engaging lectures\",\"cutting-edge curriculum\",\n    \"strong academics\",\"high academic standard\",\"innovative research\",\"great facilities\",\"outstanding lecturers\",\n    \n    # Job prospects (positive)\n    \"high employment rate\",\"graduates succeed\",\"great career prospects\",\"job ready\",\"strong alumni network\",\n    \"employable skills\",\"highly employable\",\"successful graduates\",\"career opportunities\",\"industry connections\"\n]\n\noutput = []\n\nfor item in items:  # loop over incoming items\n    news_list = item[\"json\"].get(\"news\", [])\n    for news in news_list:\n        text = f\"{news.get('title','')} {news.get('snippet','')}\".lower()\n        sentiment = \"neutral\"\n\n        if any(word in text for word in negatives):\n            sentiment = \"negative\"\n        elif any(word in text for word in positives):\n            sentiment = \"positive\"\n\n        output.append({\n            \"json\": {\n                \"title\": news.get(\"title\", \"\"),\n                \"snippet\": news.get(\"snippet\", \"\"),\n                \"link\": news.get(\"link\", \"\"),\n                \"sentiment\": sentiment\n            }\n        })\n\n# Must return list of dicts for n8n\nreturn output"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        720
+      ],
+      "id": "0077a026-2e96-4258-8566-3ebe708a8fc1",
+      "name": "Outline sentiment key values"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.sentiment }}",
+                    "rightValue": "positive",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "36b12c4a-502b-4110-935a-f8820159df78"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Positive"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d8bbf267-adca-4028-bb9e-6434d76a3a85",
+                    "leftValue": "={{ $json.sentiment }}",
+                    "rightValue": "neutral",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Neutral"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5df78185-40cf-4748-8f22-6e82f63328b8",
+                    "leftValue": "={{ $json.sentiment }}",
+                    "rightValue": "negative",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Negative"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1008,
+        704
+      ],
+      "id": "3df24e30-7fc5-4917-a4a8-624f0b9ae660",
+      "name": "Distinguish each sentiment branch"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "app1HDdnchb3RYvn8",
+          "mode": "list",
+          "cachedResultName": "Positive social media reviews",
+          "cachedResultUrl": "https://airtable.com/app1HDdnchb3RYvn8"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblMBZS0T7M6pa0bo",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app1HDdnchb3RYvn8/tblMBZS0T7M6pa0bo"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $json.title }}",
+            "Link": "={{ $json.link }}",
+            "Sentiment": "={{ $json.sentiment }}",
+            "Snippet": "={{ $json.snippet }}"
+          },
+          "matchingColumns": [
+            "id",
+            "Title",
+            "Snippet",
+            "Sentiment",
+            "Link"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Snippet",
+              "displayName": "Snippet",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Link",
+              "displayName": "Link",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date news was created",
+              "displayName": "Date news was created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1232,
+        432
+      ],
+      "id": "240366be-2909-472a-974d-c4103df41dd8",
+      "name": "Record positive news",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "xOqI5juw4PF8SsvT",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "5893601598",
+        "text": "=These are the various {{ $json.sentiment }} sentiments and the information links below:\n\nHeadline: {{ $json.title }}  \n\nSentiment: {{ $json.sentiment }}\n\nLink: {{ $json.link }}  ",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1232,
+        816
+      ],
+      "id": "76d06c85-3633-4a35-966e-71de4acfa637",
+      "name": "Notify team of negative coverage",
+      "webhookId": "b8879b26-c367-44a1-9fbb-bcf7d8838cbc",
+      "credentials": {
+        "telegramApi": {
+          "id": "CG0PY2ORk859BY1V",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1m5wpGmLF_e6jBZCFN28CshC3AZDf2w3oKAmdwhQHaVo",
+          "mode": "list",
+          "cachedResultName": "SOCIAL MEDIA SENTIMENT LOGS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1m5wpGmLF_e6jBZCFN28CshC3AZDf2w3oKAmdwhQHaVo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Positive",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1m5wpGmLF_e6jBZCFN28CshC3AZDf2w3oKAmdwhQHaVo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $json.fields.Title }}",
+            "Sentiment": "={{ $json.fields.Sentiment }}",
+            "Snippet": "={{ $json.fields.Snippet }}",
+            "id": "={{ $json.id }}",
+            "Link ": "={{ $json.fields.Link }}"
+          },
+          "matchingColumns": [
+            "Title"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Snippet",
+              "displayName": "Snippet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Link ",
+              "displayName": "Link ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1456,
+        432
+      ],
+      "id": "d18553c3-0a75-4d23-b6d9-23c56142e355",
+      "name": "Log positive coverage",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pS5a6BMlWMgf0mjU",
+          "name": "Sub Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1m5wpGmLF_e6jBZCFN28CshC3AZDf2w3oKAmdwhQHaVo",
+          "mode": "list",
+          "cachedResultName": "SOCIAL MEDIA SENTIMENT LOGS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1m5wpGmLF_e6jBZCFN28CshC3AZDf2w3oKAmdwhQHaVo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 216705848,
+          "mode": "list",
+          "cachedResultName": "Neutral",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1m5wpGmLF_e6jBZCFN28CshC3AZDf2w3oKAmdwhQHaVo/edit#gid=216705848"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $json.title }}",
+            "Sentiment": "={{ $json.sentiment }}",
+            "Snippet": "={{ $json.snippet }}",
+            "Link": "={{ $json.link }}"
+          },
+          "matchingColumns": [
+            "Title"
+          ],
+          "schema": [
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Snippet",
+              "displayName": "Snippet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Link",
+              "displayName": "Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1232,
+        624
+      ],
+      "id": "306a2fda-b997-422f-996e-23bb2165d31c",
+      "name": "Log neutral coverage",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pS5a6BMlWMgf0mjU",
+          "name": "Sub Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1m5wpGmLF_e6jBZCFN28CshC3AZDf2w3oKAmdwhQHaVo",
+          "mode": "list",
+          "cachedResultName": "SOCIAL MEDIA SENTIMENT LOGS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1m5wpGmLF_e6jBZCFN28CshC3AZDf2w3oKAmdwhQHaVo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 478519640,
+          "mode": "list",
+          "cachedResultName": "Negative",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1m5wpGmLF_e6jBZCFN28CshC3AZDf2w3oKAmdwhQHaVo/edit#gid=478519640"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $('Outline sentiment key values').item.json.title }}",
+            "Sentiment": "={{ $('Outline sentiment key values').item.json.sentiment }}",
+            "Snippet": "={{ $('Outline sentiment key values').item.json.snippet }}",
+            "Link ": "={{ $('Outline sentiment key values').item.json.link }}"
+          },
+          "matchingColumns": [
+            "Title"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Snippet",
+              "displayName": "Snippet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Link ",
+              "displayName": "Link ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1456,
+        816
+      ],
+      "id": "afa2651f-3a2e-4913-8bcf-85a7f9208c8c",
+      "name": "Log negative coverage",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pS5a6BMlWMgf0mjU",
+          "name": "Sub Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "searchText": "ESCP Business School",
+        "limit": 10,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        560,
+        624
+      ],
+      "id": "1c84514d-19a1-4e65-b98e-3d94d8ca34a2",
+      "name": "Search Twitter threads",
+      "executeOnce": true,
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "7B6YiZC2qtwaW6Jc",
+          "name": "X account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google.serper.dev/news",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "e8f3bab2d292e953d972a7fcf0f3c8105c2ff51d"
+            },
+            {
+              "name": "max_result",
+              "value": "3"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"q\": \"ESCP Business School\",\n  \"num\": 30,\n  \"gl\": \"ng\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        816
+      ],
+      "id": "b42953ac-b22b-4a69-81d7-36dfda0cfaf3",
+      "name": "Search google news",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "2irpmqOtN1ABBVhG",
+          "name": "Custom Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09G5H3FUR2",
+          "mode": "list",
+          "cachedResultName": "social"
+        },
+        "text": "=These are the various {{ $json.sentiment }} sentiments and the information links below:\n\nHeadline: {{ $json.title }}    \n\nSentiment: {{ $json.sentiment }}  \n\nLink: {{ $json.link }}  ",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1232,
+        1008
+      ],
+      "id": "260c1abd-c77a-48e2-81ac-1a9ed2932dee",
+      "name": "Notify team",
+      "webhookId": "a3676922-d4fb-4aa6-ab6f-3a0589e65917",
+      "credentials": {
+        "slackApi": {
+          "id": "QpO17cLkO43ZuglU",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        1008
+      ],
+      "id": "94258c87-e167-427e-8d7e-34b6976256ca",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {
+    "Search Twitter threads": [
+      {
+        "json": {
+          "edit_history_tweet_ids": [
+            "1968691495864607171"
+          ],
+          "text": "We will receive @ESCP_bs on Thursday, September 25th at 5 p.m to learn more about the MSc in Business Analytics &amp; AI📷Ask all your questions in the comment area or on our website 📷https://t.co/MPYKK32FYj 📷 https://t.co/jhrIXkdUYH",
+          "id": "1968691495864607171"
+        }
+      },
+      {
+        "json": {
+          "edit_history_tweet_ids": [
+            "1968458664538186072"
+          ],
+          "text": "🚀 El MBA UChile Blended, dictado en conjunto entre la Universidad de Chile y @escp Business School es el #1 en Latinoamérica y Chile en el Ranking QS Online MBA 2026.\n\n👉 Revisa la nota completa en https://t.co/am10MLIbYQ https://t.co/mai9sJwTjn",
+          "id": "1968458664538186072"
+        }
+      },
+      {
+        "json": {
+          "edit_history_tweet_ids": [
+            "1968374054961709135"
+          ],
+          "text": "Escp Business School, nuova edizione dei Collective Projects. A Torino 430 studenti da 64 Paesi con imprese e istituzioni #ANSA https://t.co/GLtCo80zJK",
+          "id": "1968374054961709135"
+        }
+      },
+      {
+        "json": {
+          "edit_history_tweet_ids": [
+            "1968328032709701742"
+          ],
+          "text": "@RancineMolesse @David_vanH David van Hemelryck a été admis à l'École Polytechnique en 2000 et en est diplômé en 2003 avec un diplôme d'ingénieur (niveau Master). Il a ensuite poursuivi des formations en pilotage (CPL, ATPL) et un MS à l'ESCP Business School.",
+          "id": "1968328032709701742"
+        }
+      },
+      {
+        "json": {
+          "edit_history_tweet_ids": [
+            "1968239885556617425"
+          ],
+          "text": "Venerdì 3 ottobre, le acque del fiume Po ospiteranno la XXVIII edizione della Rowing Regatta, la storica competizione tra @unito, @PoliTOnews e @ESCP_bs!\nInfo su https://t.co/Jwx8WLqfZE\n@Coninews @twitorino @canottaggio1888 https://t.co/qy8q6lfv64",
+          "id": "1968239885556617425"
+        }
+      },
+      {
+        "json": {
+          "edit_history_tweet_ids": [
+            "1968196208918221280"
+          ],
+          "text": "Discover this event in English!\n📅 Deeptech Connect: Building Your Founding Team\n🕓 2025-09-23\n🌐 https://t.co/h8aDc93U87\n📍 ESCP Business School - Campus Champerret: 8 Avenue de la Porte de Champerret,75017\n\n#ParisEvents #Networking #Events #Sorbonne",
+          "id": "1968196208918221280"
+        }
+      },
+      {
+        "json": {
+          "edit_history_tweet_ids": [
+            "1967894944129167425"
+          ],
+          "text": "RT @cumuleo: 🎯Quand les dirigeants se tiennent par la barbichette [consanguinité des conseils d'administration]. \n\n🧑‍🎓Par Frédéric Fréry, c…",
+          "id": "1967894944129167425"
+        }
+      },
+      {
+        "json": {
+          "edit_history_tweet_ids": [
+            "1966732413993693217"
+          ],
+          "text": "🚀 Excited to share that I’ve successfully completed the Blockchain Mastery Course offered by Binance Academy in collaboration with ESCP Business School, led by Dr. Marcus Schmalbach.\nThis program deepened my understanding of blockchain technology, its applications in finance, https://t.co/f7Xcy6Fr9P",
+          "id": "1966732413993693217"
+        }
+      },
+      {
+        "json": {
+          "edit_history_tweet_ids": [
+            "1966588632174588360"
+          ],
+          "text": "ESCP’s Blue Factory expands to five campuses, guiding 1,200+ entrepreneurs with its “profit with purpose” philosophy.\n\nRead More: https://t.co/ipnoaDaiyJ\n\n#espcbluefactory #entrepreneurship #businessschool #businesseducation #business #maabiodiversity https://t.co/GoD124OzGm",
+          "id": "1966588632174588360"
+        }
+      },
+      {
+        "json": {
+          "edit_history_tweet_ids": [
+            "1966587475981197355"
+          ],
+          "text": "ESCP's Blue Factory Expands Its 'Profit With Purpose' Mission Across Europe - https://t.co/83flhZ5AMJ #GoogleAlerts",
+          "id": "1966587475981197355"
+        }
+      }
+    ],
+    "Search google news": [
+      {
+        "json": {
+          "searchParameters": {
+            "q": "ESCP Business School",
+            "gl": "ng",
+            "type": "news",
+            "num": 30,
+            "page": 1,
+            "engine": "google"
+          },
+          "news": [
+            {
+              "title": "French business school ESCP eyes collabs with IITs",
+              "link": "https://thepienews.com/french-business-school-escp-eyes-collabs-with-iits/",
+              "snippet": "ESCP aims to collaborate with IITs on joint research, and student and faculty exchanges in areas such as emerging technologies, sustainability, artificial...",
+              "date": "22 Apr 2025",
+              "source": "The PIE News",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "Impostor syndrome: the cost of being ‘superwoman’ at work and beyond",
+              "link": "https://theconversation.com/impostor-syndrome-the-cost-of-being-superwoman-at-work-and-beyond-265218",
+              "snippet": "Female leaders are under pressure to excel, professionally and personally, without showing weakness or strain. The emergence of neoliberal...",
+              "date": "2 days ago",
+              "source": "The Conversation",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "ESCP Leads Financial Times Master in Finance Ranking For Third Year In A Row",
+              "link": "https://www.businessbecause.com/news/in-the-news/9806/financial-times-master-in-finance-ranking-2025",
+              "snippet": "French business schools continue to lead the Financial Times Master in Finance Ranking, with ESCP Business School maintaining first position...",
+              "date": "16 Jun 2025",
+              "source": "Business Because",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "ESCP Business School and Hugging Face join forces to shape the future of AI in management education",
+              "link": "https://www.fenews.co.uk/education/escp-business-school-and-hugging-face-join-forces-to-shape-the-future-of-ai-in-management-education/",
+              "snippet": "ESCP Business School proudly announces a groundbreaking partnership with Hugging Face, the world's leading open-source AI platform, co-founded by ESCP...",
+              "date": "2 weeks ago",
+              "source": "FE News",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "ESCP’s Blue Factory Expands Its ‘Profit With Purpose’ Mission Across Europe",
+              "link": "https://poetsandquants.com/2025/09/12/escps-blue-factory-expands-its-profit-with-purpose-mission-across-europe/?pq-category=business-school-news&pq-category-2=international-business-school-news&pq-category-3=mba&pq-category-4=mba-news",
+              "snippet": "Leaning over laptops at a bright blue table inside ESCP's Paris incubator, three young founders are building a data platform they hope will...",
+              "date": "1 week ago",
+              "source": "Poets&Quants",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "ESCP Business School partners with Hugging Face to integrate open-source AI into management education",
+              "link": "https://www.londonworld.com/business/escp-business-school-partners-with-hugging-face-to-integrate-open-source-ai-into-management-education-5311823",
+              "snippet": "ESCP Business School has announced a partnership with Hugging Face, the open-source AI platform co-founded by ESCP alumnus Clément Delangue.",
+              "date": "1 week ago",
+              "source": "LondonWorld",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "European schools perform strongly in ranking of masters in finance courses",
+              "link": "https://www.ft.com/content/33c26203-621a-43c5-9b45-b9ad96f62e5a",
+              "snippet": "European business schools led by ESCP performed most strongly in the FT's latest annual ranking of masters in finance courses, with rising competition from...",
+              "date": "15 Jun 2025",
+              "source": "Financial Times",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "We Are Part Of The History: Léon Laulusa, ESCP Business School",
+              "link": "https://www.bweducation.com/article/we-are-part-of-the-history-leon-laulusa-escp-business-school-552202-552203",
+              "snippet": "We are a pan-Europe school. It means that we have six campuses in Europe. And it's more than campuses, because in each location where we are,...",
+              "date": "31 Mar 2025",
+              "source": "BW Education",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "ESCP Business School expands with new schools and India partnerships",
+              "link": "https://thepienews.com/escp-business-school-expands-with-new-schools-and-india-partnerships/",
+              "snippet": "ESCP Business School expands with new schools and India partnerships. France's ESCP Business School has unveiled two new academic schools and...",
+              "date": "3 Jul 2025",
+              "source": "The PIE News",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "ESCP Business School Turin Campus opens Bloomberg Training Room with 12 Bloomberg Terminals",
+              "link": "https://www.bloomberg.com/company/press/escp-business-school-turin-campus-opens-bloomberg-training-room-with-12-bloomberg-terminals/",
+              "snippet": "ESCP Business School Turin Campus, one of Europe's premier private universities, today announced the launch of their Bloomberg Training Room, housing 12...",
+              "date": "10 Apr 2025",
+              "source": "Bloomberg.com",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "ESCP Business School announces the opening of a School of Technology and a School of Governance",
+              "link": "https://www.tribuneindia.com/news/business/escp-business-school-announces-the-opening-of-a-school-of-technology-and-a-school-of-governance/",
+              "snippet": "PTI ... Mumbai (Maharashtra) [India], June 24: ESCP Business School has officially launched its new strategic plan for 2026-2030: Bold & United.",
+              "date": "24 Jun 2025",
+              "source": "Tribune India",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "ESCP’s New Strategic Plan: A ‘Third Way’ Between U.S. & China In Business Education",
+              "link": "https://poetsandquants.com/2025/07/07/escps-new-strategic-plan-a-third-way-between-u-s-china-in-business-education/",
+              "snippet": "ESCP's plan creates a European University of Management by 2030 with the business school and new schools in governance and technology.",
+              "date": "7 Jul 2025",
+              "source": "Poets&Quants",
+              "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAFwAXAMBIgACEQEDEQH/xAAaAAACAwEBAAAAAAAAAAAAAAAEBQIDBgcB/8QAPRAAAgECBAQEAwUGBAcAAAAAAQIDBBEABRIhBhMxQVFhgZEUMnEiQqGxwSMkktHh8AcVM1IWJVNygrLS/8QAGQEBAQEBAQEAAAAAAAAAAAAAAgMBBQAE/8QAIREAAgIDAQEAAgMAAAAAAAAAAQIAEQMSITFRQUITIjL/2gAMAwEAAhEDEQA/ANzzwxtgiIX69MABCMRrs1XLaKSZxugNh0vt28t8VqEw17E/ZIIv1GPT8uOdcP8AF0mX0bRS5dJKXqHkLltOtW02YbHqSfDpjV03FOVVNMsxmeEk6TFJG2sG1+gv74p/G1WByT3W6jK6yXswYA2Nt7HwxNQY1blhQSNtsZjJM+y2nNclROY3+LY25bNsQLbgYbpxNkp2NSxNv+jJ/wDOEEb5MLr9iGqrf39njvrACyMT1YdTbDjLoRPEHlAJO/TGeNdQNXyyySaEnYNGSjdLlTfbbp3xdVcVpSsIqOFplXYyMdIb6Abnv4bjH0m3UaiRFKxszUuIqjUodLJswBBsfC2EWafsgsSzcoubDTa7fphdQ8QkPLPLCYVqJtDfaB0DUdL+YI/vbDKHKnzuVpahnjgjNkj07ufG/wDLAwkf6byLJfi+zJyR0sVOCWZ+a5uFA1AA9z54XVLfESl9OkdFUdhjT1fDwpxKNbll6IR83ntiik4VrauNpImjCBtI5lwT59MdRM2OrJnKyYc10BOkfDMDa2MF/iLma0lIsSpqDygsOoYKdx6n8sdBmrYoKOWdpANC9WIFj23xxvifOGPEReFoysIZVuLj5SAbdjvfHCxozGlHZ23IrsgKuJg/IipOVrIQHUCQDYEjHtPOJ6qOKNKRXaRdJVTfrcdT4AYrjOUimRH1uFAt+8C1x3tfx/TwxLKlyp6pXpYpEanjZkaWQkfLpG2OiRlVDa+TnhEL3J0bSyGeT4RJFadyHKEk7gdR9D7YutUH5aGEbfeifrb+dsA5PXQ8hIX+J1FzblzELu1x3w6ikpkjvJHUtfuar9NWNXZUHIGTZzAzFM/K5wgAV5FCuh0gXuNvGzHHn7GMPrWiVx0sh3O39cX08FNNUyiqXXC83+m7ljo5ex+txglaDJCx/wCXgdPmkv0JIN/U++Io7iwBLtiVqJidKsNVR5eiRDnMyu0cdkIABX16j0x0vhnMknyNHlsklOOVLfy7+v53xhcypzzIxlCR05sqkNuCFYFbeH3vfDLL/tVk9MjXSQq+he57/U3YYkVJJDSwpANZqFrqDmvKahWPcnsMXR5rSlP2eor2KobYGGSCdQ3JdGY3+01gBgiPIo40CtUEHwB2GPEY/s0HJ8kOKnhpqSaRlRo4owdDAECQ30n9f/HHKDQ5hBTLmt45IquRZFp2j1arNYE79LNfG5/xJq2ljpMqpt6iokDNbsW2Ueg39cK8oyuXLglFVz/ErExKSNcADrpG+2IICzSjkAXMpNxTXRwI0tDRhGNg3KJ9Dvse+CsszSqrhVCpoIII44CwdISpLEgWvfp1OJcRUFPLnNOohVZZyXdg17qNlv572wZW0dLR5PWmlgMc0jJHdiSfvH8zhMMne8gUoa52I8t4nzClo44aWigMIuFZob3333v44ITjTNmFo6Wm6dFhHf1x7l0NEcmoZJaB59ctl0tbRdib+mGFZlOW0FNDUf5arrJIqLpk+XrY7jtjwRz254unyC5XmdTmKZzWSwxpWwJFIq8sBfvWuPbAy8W5+XESwQB2uQBCu/fxwwyyOFc1zakjRBzaANYNqH2SoAB98UVlJST5VDUUtIlLJqtpa22ndSbAXGwwNW7Ri2XlypM2zvNCkUrRKhYMXhiF0I6HUD2Nv64b5VRy5RAySyrLLSSrIZFOnXGw/DcH2xDLK2aRoxRZVFFSawLhCwkB+8u1rXN8XUlA0GbVFQ8zPT1hMEkbDaM22t5XFvXFD/UK9wqdiUM6fSTNVUscynZhvj0jwOMtwtmEvwzQzgB47RkjuVFh7rb2w5NacFloxqbFzl2aS5lnvEVRUZZKI5IDzBKx+Qb2+u2NLVV0cNOzVELs6pdyj7s3fa2MlwvmpjaspjCFWc62qXba2wt08L4eRRxVNTI7vBINPQgG3b+eHgAJJMnnNUBAqapXN+K+ZGZuUqRqIyRfu1yOl8GcbyGLL4gvMJeQuwOkHYeXlfCjhaSOLNaurkaNA7uyiT7AA6Ab+uL+NahZI6SNXQakNmBuu9xt44LHk1R2PuE6QNkcHJWVVSAuxGkXHbrvglOUqlVNRpuSATHhRQZlDRZNThJImYQqCiy6W6d8U/51GpBcRqt9yJAx9hucVDKPTJlWPQsmBEnG0K2fm1NI6BmYXtpY9vMDAsuZ0jUtLQyOxcppkFgdwOn9MQlnifizJ6tKiJtLaP2Zv8xsB5HfCXNrQZxUIrugScME8t7jriDPq5qVC7ILml4ez+Cmy6KkNMZGhd4/n0qApNh08LYV1s89dWcjLWMMsDcwxsdSEbEW+m3XBfCVRTRVebRzMgRws0bMotq07hT33IwLnokoc9pcxVSvNTl3Y6VPv16j2wnIOLn4hXmTs0+X1hFevLB010azID2kXYr+JHqcaUqjAMsgKsAQR3Bxz/J8wFTl7zvC4qKCbn8tVtpU9bX9caymzmjp1dKgyMC5aNo0JVlO+3kDcemAHGtmVIppzbPKw/uGXfYWCnXmaVG5XTffx21e+BaLNvh4HERdWlRnY6h5jfbpcH3xo814eWjhNQa6fXJYKo0jw8vrhZPRU+lwZ5jdQuoNbwvt0G+CLHk0gH2ZtYOeiaQDpQMSTsB8xJ8OoGHnEkRFNl9INjFSxDbp8gJ/E4Jy2hymriroaj4hp1iHJ5b2t2LH6bYHz+qEteWDAooAv06f2MD7H+BAstoKdFikrZCqypqUKN/nC77EbnB+Y0+WwxwiRag62GllKC+5Avt02Pn0xo8roqoU8AWkdkWCIC0dwLICd7eP5YaClq32ekewOw0HbAKxAzmi0z5fm1JKXBBaGZSBYWO/4EEemGfG9Gf+JqhliLgDmkAdF2ufxwfxvTVMUlA5ha4SRdlsRZgQD/EcMM/nK10FVEV1VEKxyagNlKb3uD3A9saeCYBZmOpp1o6qB4Br/dmikBHV1Yt+VsMM2zipzOgjppootKKHjKg6ttiL3/7vYY13DPDOU5hlVPLKJxUp/q2qGH2++1+m2GKcFZXzeWXrF07raoJup8b373wxlNa3yA4httXZm8jrYi1FUuQDOnJmXxvt/wC2DKHLM0oYnSjz5aWJ3Lcrls2n7o7eCjDgcAZUjownrdSXseaOn8OGTZHpY/D5jX06ncrDIFBPja3XHk1/byaQYoq8opKwLz80VCDc8oqN/W+IQ8N5OWANW8zdlaQG/oMVUqCWdEYkBjY2xoaanigGmNQPE9zggmMqIqfJFjDrSiMJrUopFhp21X2Nydx9D9cNEpIVFuSvoLfpgwgKNsSTe18GbBuVGBflD2x7pTVYAfQDF1QSEIxTFtILeeNmSRVf9p/hxVNEsiFHBMZ6jpggkm+PY91N8ZNuBxrBTQhAZAi9Lm9seLV06trSaQNa3c4unUAahsfLAFXCgjaRRZh4d8ZU9cLbMv8AZUjz1x3/ACtiBzWW+xiPnob+eFN8RIx64qn/2Q=="
+            },
+            {
+              "title": "French business schools fast-track entry for foreign students blocked from US",
+              "link": "https://www.ft.com/content/902786e9-fd11-4089-b301-3c3c41c417fb",
+              "snippet": "French business schools are fast-tracking or extending application deadlines for foreign students who fear being caught by the Trump administration's curbs on...",
+              "date": "29 May 2025",
+              "source": "Financial Times",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "ESCP Business School Launches Three Executive Masters to Navigate Transformation and Drive Professional Excellence",
+              "link": "https://www.fenews.co.uk/education/escp-business-school-launches-three-executive-masters-to-navigate-transformation-and-drive-professional-excellence/",
+              "snippet": "Modular Programmes to Suit Every Career Path. The Executive Masters in Strategic Finance and Tech & Sustainable Transformation are characterised...",
+              "date": "16 Dec 2024",
+              "source": "FE News",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "Top 10 Schools In Europe For A Master’s Degree In Finance",
+              "link": "https://www.businessbecause.com/news/europe/9578/master's-degree-in-finance",
+              "snippet": "Overall Financial Times Rank: 13. Located in Lyon, France's second-largest student city and third-largest city overall, EMLyon's Master in Finance can be...",
+              "date": "6 Nov 2024",
+              "source": "Business Because",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "Business schools are facing challenges to their diversity commitments. They must reinforce them to train leaders effectively",
+              "link": "https://theconversation.com/business-schools-are-facing-challenges-to-their-diversity-commitments-they-must-reinforce-them-to-train-leaders-effectively-252988",
+              "snippet": "Amid the Trump administration's hostility to diversity, equity and inclusion (DEI) initiatives, business schools must remain relevant and...",
+              "date": "10 Apr 2025",
+              "source": "The Conversation",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "ESCP Business School’s MSc in Real Estate Earns RICS Accreditation, Elevating Career Opportunities for Future Real Estate Leaders",
+              "link": "https://www.fenews.co.uk/education/escp-business-schools-msc-in-real-estate-earns-rics-accreditation-elevating-career-opportunities-for-future-real-estate-leaders/",
+              "snippet": "Its newly granted RICS accreditation confirms that the MSc in Real Estate programme meets the highest international professional standards,...",
+              "date": "30 Apr 2025",
+              "source": "FE News",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "Inside A Multi-Campus Business School: Insight From An Alum & Administrator",
+              "link": "https://poetsandquants.com/2025/04/28/inside-a-multi-campus-business-school-insight-from-an-alum-administrator/",
+              "snippet": "Multi-campus B-schools offer seamless global mobility & institutional complexity that goes far beyond exchange programs, writes Kuhne's...",
+              "date": "28 Apr 2025",
+              "source": "Poets&Quants",
+              "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAFwAXAMBIgACEQEDEQH/xAAbAAADAQEBAQEAAAAAAAAAAAAEBQYDAgEHAP/EADoQAAIBAgUCBAMGBAYDAQAAAAECAwQRAAUSITETQSJRYXEGkaEUIzKBsdFSYoLwJDNCcsHhU9LxFf/EABkBAAMBAQEAAAAAAAAAAAAAAAECAwQFAP/EACERAAICAgMAAgMAAAAAAAAAAAABAhEDIQQSMUFRBTJh/9oADAMBAAIRAxEAPwD6UYpF1yRfeqwidtPP4jyByduCDjWKqeOUq4KDrDZiCuyA2vx248OMum8UZ0yatEbC3kEO1u1/yPvjZ5mEpNRETocuLjUbBbbHm+48sOIdf4apWN5oyv8AmS649iwv9dj6jC74gNVTZYsNJKGll0wq4Y3VnO9vYXPlbBscEMgAjkMerQhAIKkjc++3vhY/Wqc+cSFHipoy4KNe7uLXPkQlhb+bBirYW9BdII6alpqaPXHEAqopBFlA2+g+eNMwn+7hpo1DuzDSPNrfQAXJxp1NF5JNL3W6Xud7fTvthfKrSQxyaijGQk6u4s21+xO/t6Yf5sX+AWb5ZR1tTJIpLxiGMq97GxZ7sGHtspvf0HETn9FXUEZFGn2uRgdAQeMDzI78gXHJI24GLSqqB1g0rkyS2XknjvudgL9/O3J3lfibOWqCkGSjqbyQGRVuSRoJ0m+w3sT3F7WB3TJig1b9GhOS8ISGJ1r4kk8UryprY78kfvhrn+XCOtWClJmJqHAAWxvdrj8vPDVPhiaSviYnQ0bRGZ/Iqi+EDjtx69sVUdLDDNJMFBkkkZ7nkXJNvrjDNdGaYLugHKMmgpjDWSxf40QRRlmN+mVjVCF8uDvzv2FwW1wNgAAOAMC1tdBRKDOxLsLpEgu7+w8vU2HrhPNm+ZF9UP2enjP4UaMyG3mWuPoPnyYN36W0vC/NXDpdmhmQaWAITWqXAP8Aouo4POCI6iOdW+zVEcynUCQwaxuBvb9sQ0nxetJJOKqFNMM3S1B9Jb8X/rhsPiDK5nJqCOpEQCzqHKk77Hnt2x2HFHPspaloFilqKj7uwYtIDY28wf8AaPzwtyeOQU7yPK3XqNTurEXFzxx2Fh/TjJ54po1girAAWAZGkuSBsR4rn0/PGjTmM6HAuQFUfLBhEWQRJLfp3t04yFNhcfhJ/b8sATzKqIqKRdrKp7t/Y/u2OnqAFABZdxdj329PzOJjOcwlrL0VObKj3aYXG+4KjzFuf2w3gDPNs5lmqOjljjpSDpTTINioLXsT28Xbn254y7JY6enSCN30B2Yy8FrhN/oca5flaUqrcAWJbSN9zvue5xrmFdJTIBTxCWRmK7tZUIsfF378fpic5UPFWNU0RRBbhVUAXJsAOBhNVT1lXPLBBrpkWUxXAvJIQbHT/CNvf2xjMNdRBJXVQNumY4l87DfTwLknk38r4aZqkkOXO8AYyz1rx6Uv4hdja3fgfLHPySW2aU34A1WXU9LZqiRlYxxjQpuzWQDxMb+X8x9MKxmGaFEWjp0WFRYBKdZPXcsCb79ziph+HXrZIJasSAxxIpp0A1Gw31dl/v2w5lWmpX6CyZfTKgAERUMV9ySP0GM09bKL6JqoynK82jaOalZS76meJrXaxFzv6nHk3wTQVk0jtVVEXV06wpUnwggWNtufXA0FdoUJGQi8m3JJ74JXMT/GfniuX8lO6ggLir5KOk+Fcoinad/tDSmQygtMbXJ8hbB8eT5VAQY1sV4JkJP64VUkcslOjFT4rW8fnjZaSUOocWLcXOM652a9xA8UfsKq8poZYS0cpW26gP8A8YRJliifRGA7ElgSOO5w1qKCSKnfSfxeuE0LTQObsdWoc4dc3KpJM8sUWhdXxVksoMWtIYwWcK1i24AP/WFNXMHyuAQRmICZlN2vfwqb4olnSHqB5RZk45N7g2wveCCaFoRE1g2vUGtp4Hb2xdTnMTqkDLTJU5lTx08X2iVYoz4iVRRYbm2/6exxaxLDSNG9VI3WN2WJPxXJvf8Al9+fXthFl8ghhXoKVYgAkAXsBsP+zjieZ2JNyoPZDv8AmcZpchRbSRZY2x1V5peMwvIsKdoYCdVvUjf9Bhb/APoBfDFThUHAvb9BharMG0oqqDzbnHcqaCOqJVJFxcEbYz5Mkp7Y8YKInqmgRwlP1LAnxOLahjuFrgfvgbKCuZRSqXb/ACepGfIi1x9cEU0UUVVGlRKVhZSdaj37W8xgzgykX8DKCecWAnkAHA1nbDnLKp45VYsWt5nCGN6e+0j2tfGlDmEDVxpUlDTJuyg3IGE6yElTLWevLxaFUszcAbknEjnZqQG6qNFf/wAng/XBtXXSU1mibSw3BHY4R5pmdTXlTWTGUotluALfLHuze36CEDtjEIjLHOhiVV1FDrseO3qDgUZ0lMJBTJI7OLN1AFBHl3wUlFHBkleVCqZ1iuyjj7zT/wA4WZ1FQ0/wvmEkN0rYrvGdR2UDHVi31TMzast8kyGrqIVmqNNOkqhtLbt8v/mKCLIqQRJHLqnVL2DbD6YYRwlIIgh/0Cxv6Y8KS2Pjt/XikeLji7qzzySZjFl8EG0FOieqx4kvjIMmZxBRt0Bz/ubFTIkvcqf6xiP+K1K5jHrXfojg37thOSqx0hsX7Hzv4WqJaWWawUxdKQqCd9RAG30w+oamOZaPq02u87xkiQLdCnt2O98TdOwTgAeG22CsslArINe6hu+J5sKnseGStFBT1C9CEtl892opGazL+IM1jz6DbC3JqinHxW1UtDJGZKNlkTUo1Oqlg97/AJW9BiqMVIKyIRrFZoySqiwGIsqFziWVBpG6geQxKOJKwvJ2KmqzFXFETRX1xyltUwAJF7efpifmzAmiW1NCrGFdzKSb9Q37c2t+WOqpi0a+I7YUVGpbe2EWFN+BU6RSVWcmposxWZbmSKNU6fC2e+5Jv8sJpWSqonhq5pkp5G0Oykta4txcXwNDIOhMvBZQMeQS2IQgOuq5Hnjb18M59xy7NY5KWOMTI9oxp1EXYD68YJnnSKNXKtpYXurA4+QUWcSZK6sS0lLI5KskgMkJt/Dzbn2xY5bmCVcJeOpE6E/i16t7WONSYlFJIFmsyM1iL7i2I/4tLrmEQW1ugOb/AMTYpY5ylCzoAWRGIB4JF9sROYV8uaSpPUU32eRUCFEkMg5Jvew8/LGflpdCuFvsRa8Y7iOiRWG1sZxDZvbGoFjirghExgcwkazIxDKMYxuWku3JxkosR62x6vhcgdsRcQhk7jR7YVVUxJHpgyYkp5YXVGFjHYbPOpZdtsfqVyktyScY8NbGke0gIxegIcCRkdZI2KkcXFx8jgR0qY6t63L6lqapY3YxgKre6gWPywUu8Y9sZSjSBbDLZ4ZwfFmfNTCmlhpQbkNKqnxD2O2NYJZGS4tz3wojPGAc2DGoS0syfdjaOVlHfsDiWaHZUNB9dn//2Q=="
+            },
+            {
+              "title": "ESCP Business School Appoints Three New Trustees to its London Board",
+              "link": "https://www.fenews.co.uk/higher-education/escp-business-school-appoints-three-new-trustees-to-its-london-board/",
+              "snippet": "Nicolas Motelay is a Managing Director at New End Associates and an ESCP Alumnus (1987) with extensive commercial experience focused on fundraising and...",
+              "date": "21 Jul 2025",
+              "source": "FE News",
+              "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAFwAXAMBIgACEQEDEQH/xAAbAAACAwEBAQAAAAAAAAAAAAAABgQFBwMCAf/EAD4QAAEDAwEFAwYMBgMAAAAAAAECAwQABRESBhMhMVEUQWEicYGRsdEHFTJSU1RykqHBwuEkNDVCc/AWI2L/xAAaAQACAwEBAAAAAAAAAAAAAAAABAECAwUG/8QAKBEAAgEDAwMCBwAAAAAAAAAAAAECAwQREiExEzJRFEEiM0JhcYGR/9oADAMBAAIRAxEAPwBPoq0kbOXqMlapFtfbSjAWVAcM8u+u/wDxHaIJCjZ5ODyOB769D1YeUXKSirE2O6DnBe9Qri5bZrStLkZaVdDUKtTk8KS/oPbdkSipHYZX0C6OwyvoF1bXHyRqRHoqR2GV9AujsMr6BdGqPkNSI9FeZa0QlpRLUGlKGQFnGRXDt8T6y396o6kPKJJNFRu3xPrLf3qO3xPrLf3qOrDyiS/ve3F0kS1anshR4gk4PhgVItW3lxtikEvbxtZyWXSSgjwycg+NMFs2FtMGM2ZLibhIHynFHKc+AFRNudl48y0OSrdHS3Mjo1aWxjepHMY64rycrha9I9GL0bl3AnsXOImXGVlC85Hek94NVN2/nVfZFK/waXXTMety15S8jeI+0PePZTRdf55XmHsrWzjpuGvsKXbzSWBa2kvYtLCEthKpDoOkHkkdT/vsqggW24Xz+JeUpzjlKnFnh9kd1U14m/GW0ji1eU3vQ2gf+Qce8+mtT2dMQR0JC0JBT5IPDPm61N3XkpJRJtKEWm5CZLN9syd6+47oB4Er1o9NXlgvTV4ZXwCJDWN4gcsdxHhV7e+xuxXUFSVpSCFpGTjz9KyeyzDa9pkkApb3qmnEn5hP5c/RVrW4k3iRW6oRSzEudvP6lG/w/qNLaUlRwOJpk29/qUf/AA/qNQ9l7eZ9wCdQSEjOfyFXrvDbIoLMUjtbLHHfUlMuSELIyWwCcefHvpga2EgvI3iZkoA8sNah7BTnYWrbCSlIYQVd5UMknrTKmU1jgk+ykVWk3lD/AKdLkpbTanYz0x5UoPgk80gKB7gSAM1xtLd2Mw9rwppfzXSR6jwr252uON3p1Ak4LQxkeOVc6hSLs7abJKnSU7ndNqUltasnUeSQe/Jx66XayzZxSjlmWbNOmHteyUKOlMrdjHzSrHsrR9onuzmU99G0VD0JrLLEhRuENw8VmS2fxBrTtqiOzzzjP8Orh18k11KO1b9M5Vf5S/JlFhSj42ZL+Mawcn8a05Me2W8MLbcccd3idSxqXoHPurKC6WXWiP7DnHXrWgWWUqappyCtTbqRhxpDujJ+dStxF6kxu0aw4jAIdtkl15111D+SRqKkaxnoazXaLcC7BaACA4VuEHmSeXqx+NN20M5u3MKVNd3shRJQ0XNWjupEUpClpUohRdV5Q6Zq1vHdsrdySWkudrlqW5blr+UqGkmo+zkns8vIJyMEcKnbeDTcYo6MY/E1U2N9hm4tqlLUhgghak56ZHLxxTNeOci9u+0fTdpENsFqIp51fJwA4TU5naq9hGlcBDiknGpB4GodieTuEq357OoBRSfyr7cJqxIPYlQVM44a3ikg9OFc6K9kjr492xwkSXUpCjpPDupC+EaJcJlv7atemHHUNSM/KUSBy8M/jWhIhL3rmJBLKToyOeeWPPSD8I98jKjKsEFK/IKd+o/JSPl6U95JVgknoBU0YSc8itefwYFbZVrtN2gpz5IeB9Rz+VaFtA7FZU721aEsqQEnWefDl41lcQKaUkoUoEcj0r3MlLkPa3FqXgaRk5xXSpQUZ6xCq9VNRLq2Wiy3i5OMwmnGw2nWneOElzjxwPDx61ZS9mVJfy04Wcc1A4pQYkOx3kPsOFt1B1IUOYNa7Y5rF3tDUxsDWoaXUZzpX3ilbyEk9a4GLSccaXyZ9c7LCZSoznZOnvfQNeg9VDvHmqwsli2f1oejvpmuJwRrdBwfsj86cpMJh5spdbSUngU451jclCUyXUpAwlxQGegNa2VTUmmuDK8p4aafIwbfZ+M43Xc/qNLyGFlJJGABzNT4zjklsB9xS9HkoKjkpHSui2yG1A89JrapvJmUNooZrvClbOTWglJMV1AU2eYIxxHoPDHmPfUlq6WxTYJaeSe8NuFI9Qqym2GZ2iU5c1IcXKKS15X9qcYCc94BPD96qHrellwoS2hQHeccaSqRUZHSoTlKI/8AwhXV2wWSe7GR/wBiS3unFctThKeA79IT/uawoEqTvFkqW4orUpRyST3k07bdXuZtREtbISlAZRrkjOAXsY4eHyiPteFK6ra+VjGjSOXlU/TtakfpYk5Z5IY8kaqhhWcdcZq3ftslaClARnGB5VRDZZuRjdcvn/tWqo1U+1mc9yKDV/sdflWW5gPK/gpBCHgeSeivR3+FVotEwc91979q+m0TO7d/eqZW85LDiykW4vKNikqQ1GefUQG20FZPgBmsOUorJWocVHJ9NO7Nxmf8Rk2qRgySA00rVkFsniCfAZHqpW+J5nRv737VhbWlWnnMTa4qdTB9tpw0o9Fe6rHGQc9DUeFb5LKFpcCOJzwVU0ML04OM461rKhVz2szXBvEq2R7jaW23U58kFCscRw7qqYeycN9tbkoLWorOkgkYHT214h7eWNqIw246+FoQkKwycZxXpvbywJQAp2RnjnDJ99W9PN8xIUpLgyiiiiu0WCiiigAooooAKKKKACiiigAooooA/9k="
+            },
+            {
+              "title": "Ranking: INSEAD Breaks Through As The Financial Times’s Top European B-School",
+              "link": "https://www.timeshighereducation.com/student/news/ranking-insead-breaks-through-financial-timess-top-european-b-school",
+              "snippet": "When INSEAD launched a master in management program in 2019, it put the Fontainebleau, France-based business school on a path to rankings...",
+              "date": "30 Dec 2024",
+              "source": "Times Higher Education",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "Top 30: Europe’s best universities and business schools for aspiring entrepreneurs",
+              "link": "https://www.eu-startups.com/2025/05/top-30-europes-best-universities-and-business-schools-for-aspiring-entrepreneurs/",
+              "snippet": "Entrepreneurship may come naturally to a few, but for most, it's a skill that can be nurtured, taught, and strengthened.",
+              "date": "21 May 2025",
+              "source": "EU-Startups",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "Related Argent collaborates with ESCP Business School to shape future of Brent Cross Town",
+              "link": "https://www.showhouse.co.uk/related-argent-collaborates-with-escp-business-school-to-shape-future-of-brent-cross-town/news/",
+              "snippet": "Related Argent has collaborated with ESCP Business School and Barnet Council to explore new placemaking ideas for the major regeneration project at Brent Cross...",
+              "date": "25 Apr 2025",
+              "source": "Show House",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "Patients who feel heard are more likely to stick with medical treatment",
+              "link": "https://theconversation.com/patients-who-feel-heard-are-more-likely-to-stick-with-medical-treatment-260750",
+              "snippet": "In the 2000s, when I worked as a psychologist in long-term elderly care and primary healthcare services, many of the patients I saw were...",
+              "date": "16 Jul 2025",
+              "source": "The Conversation",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "ESCP Business School invests in apprentices to tackle UK skills gap",
+              "link": "https://www.pesmedia.com/escp-business-school-invests-in-apprentices-to-tackle-uk-skills-gap",
+              "snippet": "8th Apr 2025 | In News | By Michael Tyrrell. ESCP Business School, London campus has launched a Level 5 Operations Manager Apprenticeship Programme,...",
+              "date": "8 Apr 2025",
+              "source": "PES Media",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "Innovating Education: The Strategic Leadership Behind ESCP Business School’s Success",
+              "link": "https://www.europeanbusinessreview.com/innovating-education-the-strategic-leadership-behind-escp-business-schools-success/",
+              "snippet": "Innovating Education: The Strategic Leadership Behind ESCP Business School's Success · Interview with Kamran Razmdoost of ESCP Business School,...",
+              "date": "22 Sept 2024",
+              "source": "The European Business Review",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "To foster cross-disciplinary innovation, ESCP Business School explores new partnerships with Indian scientific institutions",
+              "link": "https://www.ptinews.com/press-release/to-foster-cross-disciplinary-innovation-escp-business-school-explores-new-partnerships-with-indian-scientific-institutions/2366249",
+              "snippet": "Professor Léon Laulusa, Executive Director and Dean of ESCP Business School Mumbai, March 11th, 2025: As the European Union strengthens its...",
+              "date": "11 Mar 2025",
+              "source": "Press Trust of India",
+              "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAFwAXAMBIgACEQEDEQH/xAAbAAACAwEBAQAAAAAAAAAAAAADBAACBQEGB//EADMQAAIBAwIDBgMHBQAAAAAAAAECAwAEERIhMUFxBRMiUWGRgaHBBhQjMlJy0QcVM0Lw/8QAGQEAAwEBAQAAAAAAAAAAAAAAAQIDAAQF/8QAHBEAAwEBAQEBAQAAAAAAAAAAAAECESExEgNR/9oADAMBAAIRAxEAPwD5iGwuMcasXGo7HhVDwqH6VyHUXDDw7Gua108+NV5VDWNhYuvi4+1Qsuds8KpV7e2uryfuLG1muJcZKxRliBWS0D4BmILR48jVCKvfW9/2fNGO0rKa2Djw96hU11gN+lFrAJ6CrhFEbn0qh59KUJQil5j4/hTR59KVufzj9opp9AaR4V2oeHwrgoDHfKoalQ1jHDxr3f2Fs7y0gN9YrDK8hUkOSPTGw5b+9eEr0n2Rv5LdblZIZpLSNQ0jRLq0Z23XmDQYVhpf1EN5e9nrNdRwIJX0xojkkNnHOvDtsSPhW/8Aaieea3gMNpPDZavwmmTu2l/anJR/3GvP438qZy1K1C6m+HGNUP0q5FUIpTHD9KVuPzjpTRFK3Aw46U8+gZpVP4rgNQcR0pRiw5VDwNQcFpizt1nnRJHEcbOAznkM4zijMuniBTSWskEAkUueAr0HZSy2HZSXNrey2V1dXwSJo91EUSFnZl4Nu6gA86D2hZQ2UgitbqO5hdSVaPlhuB9cb0KaWRYrZbhJYYEjKRtIhAbLFmIPqT7KK75mVKSOSm2xjt7taftrtF7iXLyt4dZ2VR5D58KxL5YI1xklx/tld/nTyw65mnk3VRpjUcF9axO0LgSzd0jHJbB8XL2pv0z56LPvDh4VU1flVTgV5h2lTSd1/kH7RTMkipjJ40rOys4IblTwmK2jQFdU7jpQIJu8JwMVdn0AE+VD5e4H6WaGUjSOtLTzSRTnGoDkQK6txGRvkURZI3zpY+1UhXD3BKc0sD2vaeqYLI7eI7qRjbn8q9Td/bC9v4PulzPFHARgxRppDDrz968TdW5LgmRfFy5qMUa87PuII0ht7ppFO5TOAK6k960QfOJh+0O0O7GhZDo/SKzrUvcTGQ7KuwAqkdhcSP8AjKwA54zmmrSBo9YTgG8qX9G2uhnjLkEAk7AUISoRktii3CSmIqBjPnSXcSAgFaivzko6YSSBpiGUjGNs0F4SjaWYA1oodIAwaRl7xpGYo2SfKqT/AARjFvC6Lgjz+n8VW5il0gBCRjfFNR3QHGLHQ0dZ4mG6svqRUn2vofeYYhRxxRh8KZtCFjkY8sZ6ca10MTDwuPalL9dWIxsnFyPkKtN68JtGYonkYSBc6m1YOwG9bsZaWcO3DFJGUArpPiPJQKZSYRRjUcNzFWlYI+hbkERHSzDP6jWfDIDJKCc78ql1cvLstCiQoQgG5GTSfo+DT6MO6qpOo4ApRLuQnxBSOlMyWN1LHiOPOfWgf269Tjbv8MGpTjGejEEvfSBAg35k7D1ptEjZFJjAyM0hbDQJQwIJXRg+pwfkTWgp25UbSQE2zNXFFXrSyneioTmkGGVI54oM5IJJYA+hogJIpSZmwxBxg42qseaK/S1ooRmkGWUnrVrqXU+FRi3kFowJjt0AJ3HHNZ187owjVjpIyao+IVdYS2M9xM4Ux+AZ1acijWkkkdwXmVSwHhOM496v2Kg+6zNzqp/NUW9Hwk3bN1jCtgdT9KVa+nkOWk9gKXn4DrQdRFaTGjFLsSWySQT700twMcqyYyc0xqNaugR//9k="
+            },
+            {
+              "title": "The P&Q Interview: ESCP’s Dean On The French B-School’s Unique Value Proposition",
+              "link": "https://poetsandquants.com/2024/10/14/the-pq-interview-escps-dean-on-the-french-b-schools-unique-value-proposition/",
+              "snippet": "Léon Laulusa, executive president and dean of ESCP Business School, says the b-schools multiculturalism approach is part of its core DNA.",
+              "date": "14 Oct 2024",
+              "source": "Poets&Quants",
+              "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAFwAXAMBIgACEQEDEQH/xAAcAAABBQEBAQAAAAAAAAAAAAAGAgMEBQcAAQj/xAA4EAACAQIFAQYFAgUDBQAAAAABAgMEEQAFEiExUQYTQWFxkSIyQoGxFKEHFSPw8VLR4RZikrLB/8QAGQEAAgMBAAAAAAAAAAAAAAAAAQMAAgQF/8QAHhEAAwACAgMBAAAAAAAAAAAAAAECAxEhMQQSE0H/2gAMAwEAAhEDEQA/AJ3Zfs/PQd61bFUwPZrC4ZGYg2fbVfe3T83uxUJNHHHJIFlKhX0ghb23tex09P8AOK6Sk7a0cat30suhvkamjl1C3iV3tjv+ps3hIjzDJYnNuRK0R9mB/OMeTx1b70M1WtIFs1y+uDFko3JFmQpJyb2G1t7+p9b7YGq+qVhoUhmcgsR4Nxv15ONErM2yHMYZGq8pr4XZSNcaFhc7/Q35GKsdlOzFW6Gh7RrDPcN3VSU2byU6TiTgpC9MvZM1o8vmjo5ELu8TDRGR/TXi5xb0fahjCi1cdNMANKuuqFiB4X3B9xgRrez9VldWldPUw1az6laVDpJbm5vsB6HEhJG0OkZZzY6G+cIdje44GNPs0xqiWhr+KNfS5lklHPTwND3c5jMclg17HcaSbj84yt9LOQTZfXF92WyKp7Qd9PU1EyzSXEUmo6dW5Hre3jiHNl4pVqopJUM8KjYCwZ7rqH2u3PTFbW3sW1rkbpGqVmjaFbTKurUbdeTzt+cTBlElU0s8yxvIVMpYEDwuFta1uth0x4RGvfRQsZHBVlbSAGFviFrbeFvTEuWpaQrClMqxA95Z5TbQdrHrbbCWnvgqUciKjfAi2dfle1xsBzt64gNVywkKmoqdxp4/fF5UxmWtRY40jVC4JQ3J32byw2cq0OylZdjb5re98Hansh9Sjwx6VDCzAEdDijynMp61WpArCemOiomdbbXIUgf6mA9Ab82sZWYZiaCengjSNu9SRy0shUDSUHIU7nVje5e9AH5soy6a5eigueSqaSfuMVVV2Myap1f0pEJBF1fV/wC18WS5rH+omilj7sQC8jF1+EBbk250+dsetmcSoGlhqYySAFaIktcEiwF+h8x44r6sOwB7R9kKLIaMVlGS7M/dlRCNRv6Wv8uKfs9QrmNeQo7uKMXluhBI2sOnIODHt/NHV5DCYyro8ysvIB2b74F8jrJIJmBkAV5NLKpNr6QRziRjVZUmXdax7LbtQI8mytpcsp0TSQ76HWNVHid/tjOcqp48yziL+YSOEqELsV2Y/FYEHe92v4eGNUr4mrKVkRdbGIggWBB8Dv7/AGxnc3Zyoy7LZMyrMxjjzCKNm/SxprYHchQwbYm/hg+TCVLRTFTffSIOWUlNHPUT1Eiym8ihTuRoHzDb/nf74uJezSPl8NRlkMgkCAzBZpJA45JIYCwHxf3tgXyHMKmITQ04DVEjAIX+liwBBB52P226b6LW5fLS5FOtGdNQkRaIqNdyLEc+G3HhbHPy5VjpTS7NM41UtoGm7K1n6t0p1AqoRq7lx8R23F+L/CSPa2+KZoKamtHVGYyjnREWtvwT1wWR1Od1udU8tK0Zaek72eoZeSyi1rdCD0BvbEur7KQZe6RVOXyVzugfvQz7X8Nj1B98XjH9JTQu1M8fppS0cdGIHo49IgUoVG+tDzfqb/Ff16nHtbStUTwzR/MiMA6ztGQGIPhyPhHPQYkd6vQ+xxwljUW4HS2N3PYkrpqF55Q1TBJKi6rIagFd1Kk7i/BIte2+G56aV1Rag1kyxyBl3QcAjlbHx58sW3fIfqGEPKlvnHvgpsAHduAkeS0scYMaCUBV4I+E7YAskd6quzKnFysbxlGv8QNv98Hn8RHVMtpiRqvNsLbH4TjLq5XFSZldo5GCqyxWAsBtf+/HExtrJ7Fq08egvov5rJVRx1VQqRFmEgRCDo0kk6r+g2464qaGGgou0GZlwrVC6jExYFnUm+nnf6cOZV2vly6MPXgVSXEaKps3HO+3hijzCnps17QVGZUjMsDRq4gcbh9wb/YD3xpq5fIlS0V3ZYyxV7x1yMKhamKUh9tty34GNmiRYlIL3iO4BN/bbGQ91JHV0VeY9MEn9E25F/H9jgsirv08EMbVDwkqNQVguojY3tbHE8/w7z1Lj8N2DNMJ+wQ5K7ZRUwZYVeSKWJ0Ukb6FAI9CoB9cWmax5xPOjUc5WIIF2A3NzgYpe0E+VMjR0hq1OoqNVrHSbktY+W3/ADifl3bPMZ4WeKCkVC5stnbT5XuL+2NniYLx4/WudMTnyzVbRo1h0Htj2y9B7Yy2at7RIhAzyqMmoC39MbeP0c8Y5szzeKAPU55XIbfFZk5+y4H1kv8AGjUjp6DCHAtjMFzDNHi1Lndc1wCl5LA+ww1VZlXxAO2cV4Q7bzsd/bE+qJ8aLT+KcrRZXAytpAkYs1+BpxjEztUzvItS2lvp7033++D3OpKqaArVVlTUXB0q7mTTxuAcBdTk1pSBqJ66OMH6LZHjehzNBHTxUscTXDHXc+lhh/KqrRWvHyrw/wC+B2EyPWPdnaJDZBfgDBJCn6ekpKh7Xd3Cgj6SB+dJw1MS0EWVUf6jIZaKrUCSJhex+Ug8g/bELtBl708SVVAoRadCXsbXGpR1vtqv74YiqailzCoAn13DFWN7Hc2vhjOTWz1jiRn0GyhEYaLfD4epxWqfomRLnQT5JO7tSRMdQu7MAfhOxsbfc4TQn9LJWRaLKKlitum2B2U1cGaZGY1KVEUjIt9xwPyMO5n2pjyjMqmKopTrmYS2Bta6gdf+3DlWk2Ua5Cyriq5GQ0zwq5v3hcnnwtscIraiGmVI6uRTqAbaPUDbbp1vhg5mxaItNAuw1BQxAP8A4ny8cPS5lEqhlaRgSQtkAsB/nHOOkT9MaRhQQHU/SgxX5kagtH+mSd0PPdIDpI8fLDtUn6qOMmaZByQr2Jvb+/vhaiJSuogG22pr3sPbwwVJR0RKqmMalZJGc2Y3aS1+OuBzNo0hpqgxgMgBuWe/ANsEVU4faOJnFv8AST4+FsDeeRzvRzRLEyllIu4sPxgyuQVS0CmWRszKgBOogWGLvM2IhYoJCsLatFr2A1+XQ/viL2cMdMWqptHdx/AASdTM22yjc23v0vgqzGkNdQlIIoo5ZFuO9VlNj68beWHU2mjOgapKoTzGOCOQySpqXcALuTvf7e+L6vyzMHzKFJIGhMmgG/y31LwT6YT2UoKnKMwM8tPG2hXVWkNxckWtY9B5c4vat2rpqeWo0a4HEiMVtuDfc8+HXBdLoikH66jq/wCc08DNGJoZ10qPra4IsB12H3viy7QUSR5gUqUSKZUGpJHsR+2LSsqJKjMVr4lWCpQDTInNx4//ADDkWb5hE0rLOrNK+t2aGJixsB4r5DBWThoDjnZDApIU/qyUvH0QNJ+5sMLilARTFdyo5UqlvLjEGno4zEsD6nTUSSbaiR5jf7ceWJsUMUUloo1QFLmw5wgbtjsbioIMkcB0jc1EhNv3th5hOrsloUI2vGq2+xw3GAL7c9ST4nClNlGw3JGJp7AKfWwN2Zj0JvfEF40Mt2jNzdWjdygdTyupd7eeJiEmPWDY+WGp5jHMigKQUZrnqP8AOJrXJDqugyyspBC1GaZ2YNJKHFQ8lhYAs+kn3vxhEVDHCdMc1VODu71RGon0F/cscPygGyny34OFxi3iTdb7m9sMdNrkHqjljsBf84SyAkWtf0wt/mtcjbm+Oa3TxxUI28YAs4vt4Dz6YQtOukaWRB0ANsKMpJb4VFugwtYkN7i+/OIQ/9k="
+            },
+            {
+              "title": "‘Piracy’ to legitimacy: how companies like French ride-hailing platform Heetch can make their mark",
+              "link": "https://theconversation.com/piracy-to-legitimacy-how-companies-like-french-ride-hailing-platform-heetch-can-make-their-mark-253079",
+              "snippet": "The case of the start-up can be seen as an example of how a 'pirate organization' operating in legal limbo transitions to a more established...",
+              "date": "25 Apr 2025",
+              "source": "The Conversation",
+              "imageUrl": "data:image/jpeg;base64,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"
+            },
+            {
+              "title": "How countries define climate action in Paris Agreement pledges – and why a standard format could help assess outcomes",
+              "link": "https://theconversation.com/how-countries-define-climate-action-in-paris-agreement-pledges-and-why-a-standard-format-could-help-assess-outcomes-251848",
+              "snippet": "The climate pledges that countries submit to the UN may or may not detail policy and regulatory measures, making it difficult for...",
+              "date": "12 Mar 2025",
+              "source": "The Conversation",
+              "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAFwAXAMBIgACEQEDEQH/xAAbAAACAwEBAQAAAAAAAAAAAAAEBQECAwAGB//EADUQAAEDAgQDBQYFBQAAAAAAAAECAxEABBITITFBUWEFFCKRoTJScYGx0SNCcsHwBhUkYrL/xAAZAQADAQEBAAAAAAAAAAAAAAAAAQIDBQT/xAAeEQACAgIDAQEAAAAAAAAAAAAAARESAhMDITFRQf/aAAwDAQACEQMRAD8APLSZMVUt8BTMtp90VkWQfymu+sjjPEAyzXYDRuSP9q7J4T6VVyasDy6nKo4W56H4Gp7qedO4VYBlGiLSzDyjj0SONb92VzFG2aQ2xsAZ3rPl5Gsei+PCcuzB5tASUASDxmsmWUtAlO5rV1Sis4ePpVcS0j2Z61kllBpbGTJ1JUPENaqGxFa4sR1BroHI1STQpDjanlXd2VwpiZ4QariVyFZXZrRAHdnDVRbL5TTIFZ4VMK6UbGGtC8WpJ1SKuLRQ2B86PCVnbD5VbC4PdouwXGgHuqo2PlUpYKUlJG9HBLh92qOIUImKWWUotYoXm0PKo7mqNxTPLUeIrsqNzV7CdaFRtCOVR3ZXIU2ykDiD86qW0dPOnsDUFBse7XZBiYFYC7V0rjdq514Ls9EIstsiqiZA0E1XvSoO1Yh5RVM0XZMILwrjYeVTgcodT7nvVVNysaFaqrYxQFBtZrG6UGEIU4lXicCRhE6mo7wv3j86HvX1qbRrs6k0PkcDS7DsJP5ahTZrAvuT7dRnr4rmnsFCNMuoyz1rMvq51Uvqn2jRsY4QEHlc6nOPOgA71rs3rWJcjDNPSozaBzanM2OIRtEGfjypAHZwqyHkhaSZgHWKX5vWpDlMBpduspei3cxpIBPQ8qDu3SWxqRCgdKCbe/Ff/WP+RWV+8kMjEQPFOpidKUdDXo3Lxk1XvHiKREgTQZd13rEO/wCSvX8iePU1QoGJfNRnmgc7rUZ3WqSF0AOvZKkJWtJzEBaSDwM/Y1n31MxiBPIGvIr7RcXieBBStUqSTuRr4tZrk35euD+OA6NAEiCkct+XxpR9Gz29s4X0ghsrGPBCVCZjlVbp161bCbltxolU4Sem8V5bsLtJr+6srU8EELhCyrCZ2A6b1s9/VCC8s3N2pRD0FRAd/DwjQTGvGahpz0NRB6VK1m1VcZTha4Oj2d/4KzF0iPE7B39kkelJGf6jbdtG7LPdS286rFl6pS2VkkhOpkD6GlY7WU0s4bhBbckoUfEYGh/amp/RNI9Yw+HLh4NrJKlCBhOug+1VeuFypAC8aQdAJ4cq84126y1cBxTiFlTSgTjiVk6H6Vo32u3eLVkWj3hQQcKgvF11iKHMDXo+N63lJcDypVuFiOFcLxOqvGpMQSJj+a15q2vUobAcaSTixDFtpp+1arvrbJbSNFBZVhUoQJHPemwgfi9SRAVJIkeIa1xuT+npNIu9JSoSUiAEwlcGPlrPWtkrDyc1xp9ZUTGEEgAGPdPKnIVPnLl68tZUpQJPMCp767hgFA1mcCftTVvse1cWlBxgFUaGtLfsm1Q5cFSS4llwgIXBB046T5GiyJqxdZ9qZLhU7bsvzsFiAkwddN95+VQu8W88XChkEmSEpMepJ9aOuOyrbxLAUmU44EQOnwrW07HtXbfGvHi+O1Fl6ENCnvSyQAhAjmkGrO3jpRiKW4TzSDHpT9/sGxbtm1gOY1LIJx8ImgHuzmbdl1xpboUmAPFwOhpXQ6sDtH0uKkrQmN0qWEzvsKOxtJcCiUBOxwuQY+RpekJbUtASIA0MQfSmFhbNPSlQIwmQQdaGx4ohm5cbhxozrG8yPhrRd1cKcaaW8E5SiYAwYp46bn6VduwYRfJTBVKxJJg7DlTC/eWOzWSkxlkBMdZ+1Tfwqpg2m1cCzbXBLeABSVtyo8/KKIxrd8ds0EM6YE4lDSOQVSy6OVdjAIJTM8ZqqnXWVqbbdWEpMATtQ2CR/9k="
+            },
+            {
+              "title": "ESCP Business School explores new partnerships with Indian scientific institutions",
+              "link": "https://www.deccanherald.com/india/maharashtra/escp-business-school-explores-new-partnerships-with-indian-scientific-institutions-3446665",
+              "snippet": "ESCP has established robust relationships with top institutions, including exchange and dual degree programs with eight prestigious Indian establishments.",
+              "date": "14 Mar 2025",
+              "source": "Deccan Herald",
+              "imageUrl": "data:image/jpeg;base64,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"
+            }
+          ],
+          "credits": 2
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Trigger every 15 mins": {
+      "main": [
+        [
+          {
+            "node": "Search google news",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search Twitter threads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Outline sentiment key values": {
+      "main": [
+        [
+          {
+            "node": "Distinguish each sentiment branch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Distinguish each sentiment branch": {
+      "main": [
+        [
+          {
+            "node": "Record positive news",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log neutral coverage",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify team of negative coverage",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record positive news": {
+      "main": [
+        [
+          {
+            "node": "Log positive coverage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify team of negative coverage": {
+      "main": [
+        [
+          {
+            "node": "Log negative coverage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Twitter threads": {
+      "main": [
+        [
+          {
+            "node": "Outline sentiment key values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search google news": {
+      "main": [
+        [
+          {
+            "node": "Outline sentiment key values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify team": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d2321f78-480e-464c-8fa4-6d17da52f8c4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1f577da385b35719c34a782385ef24bd4e90bf81866176ddfd4abce745606560"
+  },
+  "id": "6Ybh1gk692CU5c1f",
+  "tags": []
+}
